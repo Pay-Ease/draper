@@ -1,6 +1,7 @@
 require 'rake'
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
+require 'gemfury/tasks'
 
 def run_in_dummy_app(command)
   success = system("cd spec/dummy && #{command}")
@@ -67,4 +68,11 @@ namespace "db" do
     run_in_dummy_app "RAILS_ENV=production rake db:schema:load db:seed"
     run_in_dummy_app "RAILS_ENV=test rake db:environment:set db:schema:load"
   end
+end
+
+Rake::Task['release'].clear
+
+desc "Tag and release to gemfury under the 'citybase' organization"
+task 'release' => 'release:source_control_push'  do
+  Rake::Task['fury:release'].invoke('draper.gemspec', 'citybase')
 end
